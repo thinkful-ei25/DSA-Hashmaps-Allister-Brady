@@ -1,5 +1,6 @@
+// collisions
 
-class HashMap {
+class HashMap_sc {
   constructor(initialCapacity = 10) {
     this.length = 0;
     this._slots = [];
@@ -9,37 +10,47 @@ class HashMap {
 
   get(key) {
     const index = this._findSlot(key);
-    if (this._slots[index] === undefined) {
+  
+
+    if(this._slots[index] === undefined) {
       throw new Error('Key Error');
     }
-    return this._slots[index].value;
+    const keyExists = this._slots[index].find(item => item.key === key);
+
+    if(keyExists) {
+      return keyExists.value;
+    } else {
+      throw new Error('Key Error');
+    }
+
   }
 
   set(key, value) {
     const loadRatio = (this.length + this.deleted + 1) / this._capacity;
-    if (loadRatio > HashMap.MAX_LOAD_RATIO) {
+    if (loadRatio > HashMap_sc.MAX_LOAD_RATIO) {
       this._resize(this._capacity * HashMap.SIZE_RATIO);
     }
     const index = this._findSlot(key);
-    this._slots[index] = {
-      key,
-      value
-    };
-    this.length++;
+    if (this._slots[index] === undefined) {
+      this._slots[index] = [{ key, value }];
+      this.length++;
+    } else {
+      const keyExists = this._slots[index].find(item => item.key === key);
+
+      if (keyExists) {
+        keyExists.value = value;
+      } else {
+        this._slots[index].push({ key, value });
+        this.length++;
+      }
+    }
   }
 
   _findSlot(key) {
     // console.log('FINDSLOT => ' + key);
-    const hash = HashMap._hashString(key);
-    const start = hash % this._capacity;
-
-    for (let i = start; i < start + this._capacity; i++) {
-      const index = i % this._capacity;
-      const slot = this._slots[index];
-      if (slot === undefined || slot.key == key) {
-        return index;
-      }
-    }
+    const hash = HashMap_sc._hashString(key);
+    return hash % this._capacity;
+    
   }
 
   _resize(size) {
@@ -66,7 +77,7 @@ class HashMap {
   }
 }
 
-HashMap.MAX_LOAD_RATIO = 0.9;
-HashMap.SIZE_RATIO = 3;
+HashMap_sc.MAX_LOAD_RATIO = 0.9;
+HashMap_sc.SIZE_RATIO = 3;
 
-module.exports = HashMap;
+module.exports = HashMap_sc;
